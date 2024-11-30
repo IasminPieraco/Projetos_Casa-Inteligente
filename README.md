@@ -1,24 +1,21 @@
-# Lampadas Inteligentes
+# Casa Inteligente
 
-Lampadas Inteligentes  é um aplicativo desenvolvido em Kotlin utilizando Jetpack Compose que permite o controle total das luzes da sua casa. Com Lampadas Inteligentes, você pode ligar e desligar as luzes, agendar horários para controle automático e até mesmo alterar a cor das luzes RGB para criar o ambiente perfeito para qualquer ocasião.
+ Cassa Inteligente é um aplicativo desenvolvido em Kotlin utilizando Jetpack Compose, projetado para revolucionar o controle da sua casa. Este sistema integrado permite aos usuários gerenciar remotamente diversos aspectos residenciais, proporcionando mais conforto, segurança e eficiência.
 
 ## Funcionalidades Principais
 
-- **Controle de Lâmpadas:** Ligue e desligue as luzes da sua casa diretamente pelo aplicativo.
-- **Agendamento de Horários:** Programe horários específicos para ligar e desligar as luzes automaticamente.
-- **Alteração de Cores RGB:** Customize a cor das suas lâmpadas RGB para criar diferentes ambientes e atmosferas.
-- **Interface Intuitiva:** Desenvolvido com Jetpack Compose, oferece uma interface de usuário moderna e responsiva.
+- **Lâmpadas Inteligentes com Sensores de Presença:** As luzes da sua casa são acionadas automaticamente ao detectar movimento. A funcionalidade pode ser ativada ou desativada pelo aplicativo, além de oferecer controle manual para ligar e desligar as lâmpadas.
+- **Controle Climático Automatizado:** Sensores de temperatura ajustam o ambiente automaticamente, abrindo janelas em dias quentes e fechando-as em dias frios, proporcionando maior conforto térmico.
+- **Automação de Portões:** O portão da residência se abre automaticamente ao detectar a aproximação de um veículo, graças a um sensor de presença integrado.
+- **Configuração e Personalização:** Todas as funcionalidades podem ser configuradas e personalizadas diretamente pelo aplicativo, garantindo que o sistema atenda às suas necessidades específicas.
+- **Interface Moderna e Intuitiva:** Desenvolvido com Jetpack Compose, o aplicativo oferece uma experiência visual moderna, prática e responsiva.
 
 ## Capturas de Tela
 
-### Tela de Controle de Lâmpadas
-<img src="images/tela_controle.jpeg" alt="Tela de Controle de Lâmpadas" width="300">
+### Telas do aplicativo
+![image](https://github.com/user-attachments/assets/87f8b8b6-5f96-4a49-b4b1-4b31a48b6da6)
 
-### Tela de Agendamento
-<img src="images/tela_agendamento.jpeg" alt="Tela de Agendamento" width="300">
 
-### Tela de Alteração de Cores RGB
-<img src="images/tela_rgb.jpeg" alt="Tela de Alteração de Cores RGB" width="300">
 
 ## Tecnologias Utilizadas
 
@@ -33,15 +30,9 @@ Lampadas Inteligentes  é um aplicativo desenvolvido em Kotlin utilizando Jetpac
 
 ## Instalação
 
-1. Clone o repositório:
+1. Abra o projeto no Android Studio.
 
-   ```bash
-   git clone https://github.com/BrunoHiago/LampadasInteligentes
-
-   ```
-2. Abra o projeto no Android Studio.
-
-3. Compile e execute o aplicativo no dispositivo Android.
+2. Compile e execute o aplicativo no dispositivo Android.
 
 ## Como Usar
 - Configure a conexão com o sistema de iluminação inteligente da sua casa.
