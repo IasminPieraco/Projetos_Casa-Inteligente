@@ -27,10 +27,32 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import com.example.projetos7.ui.theme.Banco
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+
+private const val REQUEST_RECORD_AUDIO_PERMISSION = 200
+
+fun checkAudioPermission(context: Context) {
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
+        != PackageManager.PERMISSION_GRANTED) {
+        ActivityCompat.requestPermissions(
+            context as Activity,
+            arrayOf(Manifest.permission.RECORD_AUDIO), REQUEST_RECORD_AUDIO_PERMISSION)
+    }
+}
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var speechHelper: SpeechHelper
+
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -39,13 +61,28 @@ class MainActivity : ComponentActivity() {
                 Scaffold {
                     CentroPrincipal(it)
                 }
-
             }
         }
+        checkAudioPermission(this)
+        speechHelper = SpeechHelper(this) { spokenText ->
+            Toast.makeText(this, "Você disse: $spokenText", Toast.LENGTH_LONG).show()
+            // Aqui você pode executar ações com base no texto reconhecido
+        }
+
+    }
+    override fun onDestroy() {
+        speechHelper.destroy()
+        super.onDestroy()
     }
 }
 @Composable
 fun CentroPrincipal(paddingValues: PaddingValues) {
+    val contexto = LocalContext.current
+    checkAudioPermission(LocalContext.current)
+    var speechHelper = SpeechHelper(contexto as Activity) { spokenText ->
+        Toast.makeText(contexto, "Você disse: $spokenText", Toast.LENGTH_LONG).show()
+        // Aqui você pode executar ações com base no texto reconhecido
+    }
     val gradientColorList = listOf(
         Color(0xFF071D33),
         Color(0xFF135192),
@@ -53,7 +90,7 @@ fun CentroPrincipal(paddingValues: PaddingValues) {
     )
 
     var showDialog = remember { mutableStateOf(false) }
-    val contexto = LocalContext.current
+
 
     Box(
         modifier = Modifier
@@ -99,6 +136,11 @@ fun CentroPrincipal(paddingValues: PaddingValues) {
                 iconResource = R.drawable.sensorprox,
                 onClick = { val intent = Intent(contexto, PresencaSensor::class.java)
                     contexto.startActivity(intent) }
+            )
+            CustomButton(
+                text = "Falar",
+                iconResource = R.drawable.sensorprox,
+                onClick = {speechHelper.startListening()}
             )
 
             Spacer(modifier = Modifier.weight(2f))
