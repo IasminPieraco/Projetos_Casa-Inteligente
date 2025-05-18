@@ -6,10 +6,6 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,9 +26,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,12 +44,10 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.navigation.NavHostController
-import com.example.projetos7.ui.theme.Projetos7Theme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -153,24 +147,10 @@ fun Centro(
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("Home", "Settings", "Info")
     val context = LocalContext.current
-    val ok = Api()
     val coroutineScope = rememberCoroutineScope()
     val Lamp = LocalContext.current
-    var componente by remember {
-        mutableStateOf(Componente())
-    }
+    val componente by viewModel.componente.collectAsState()
 
-//    var counter by remember { mutableStateOf(0) }
-//
-//    LaunchedEffect (counter){
-//        while (true) {
-//            delay(2000) // 2 seconds delay
-//            CoroutineScope(Dispatchers.IO).launch {
-//                componente = ok.getComponente()!!
-//            }
-//            counter++ // Increment counter or perform any other task
-//        }
-//    }
 
 
     ContentPrincipal(modifier = Modifier.fillMaxSize())
@@ -206,16 +186,9 @@ fun Centro(
             ) {
                 Button(
                     onClick = {
-                        componente.led_quarto = !componente.led_quarto
-                        coroutineScope.launch {
-                            withContext(Dispatchers.IO) {
+                        val novoComponente = componente.copy(led_quarto = !componente.led_quarto)
 
-                                ok.setComponente(componente)
-                            }
-                            componente = withContext(Dispatchers.IO) {
-                                ok.getComponente()!!
-                            }
-                        }
+                        viewModel.setComponente(novoComponente)
                     },
                     modifier = Modifier
                         .height(100.dp)
@@ -243,16 +216,9 @@ fun Centro(
 
                 Button(
                     onClick = {
-                        componente.led_cozinha = !componente.led_cozinha
-                        coroutineScope.launch {
-                            withContext(Dispatchers.IO) {
+                        val novoComponente = componente.copy(led_cozinha = !componente.led_cozinha)
 
-                                ok.setComponente(componente)
-                            }
-                            componente = withContext(Dispatchers.IO) {
-                                ok.getComponente()!!
-                            }
-                        }
+                        viewModel.setComponente(novoComponente)
                     },
                     modifier = Modifier
                         .height(100.dp)
@@ -288,15 +254,9 @@ fun Centro(
             ) {
                 Button(
                     onClick = {
-                        componente.led_sala = !componente.led_sala
-                        coroutineScope.launch {
-                            withContext(Dispatchers.IO) {
-                                ok.setComponente(componente)
-                            }
-                            componente = withContext(Dispatchers.IO) {
-                                ok.getComponente()!!
-                            }
-                        }
+                        val novoComponente = componente.copy(led_sala = !componente.led_sala)
+
+                        viewModel.setComponente(novoComponente)
                     },
                     modifier = Modifier
                         .height(100.dp)
@@ -324,16 +284,9 @@ fun Centro(
 
                 Button(
                     onClick = {
-                        componente.led_banheiro = !componente.led_banheiro
-                        coroutineScope.launch {
-                            withContext(Dispatchers.IO) {
+                        val novoComponente = componente.copy(led_banheiro = !componente.led_banheiro)
 
-                                ok.setComponente(componente)
-                            }
-                            componente = withContext(Dispatchers.IO) {
-                                ok.getComponente()!!
-                            }
-                        }
+                        viewModel.setComponente(novoComponente)
                     },
                     modifier = Modifier
                         .height(100.dp)
@@ -365,7 +318,7 @@ fun Centro(
 }
 
 @Composable
-fun BottonBarLight(index: Int){
+fun BottonBarLight(index: Int, navController: NavHostController){
     var selectedItem by remember { mutableStateOf(index) }
     val coroutineScope = rememberCoroutineScope()
     val Lamp = LocalContext.current
@@ -407,7 +360,7 @@ fun BottonBarLight(index: Int){
                 label = { Text("Lâmpada", color = Color.White, fontWeight = FontWeight.Bold) },
                 selected = selectedItem == 0,
                 onClick = {
-
+                        navController.navigate("tela3")
 //                    val intent = Intent(Lamp, MainActivity3::class.java)
 //                    Lamp.startActivity(intent)
                     selectedItem = 0
@@ -429,8 +382,9 @@ fun BottonBarLight(index: Int){
                 label = { Text("Temperatura", color = Color.White, fontWeight = FontWeight.Bold) },
                 selected = selectedItem == 1,
                 onClick = {
-                    val intent = Intent(Lamp, Temperatura::class.java)
-                    Lamp.startActivity(intent)
+                    navController.navigate("tela3")
+//                    val intent = Intent(Lamp, Temperatura::class.java)
+//                    Lamp.startActivity(intent)
                     selectedItem = 1
                     coroutineScope.launch {
                     }
@@ -450,8 +404,9 @@ fun BottonBarLight(index: Int){
                 label = { Text("Presença", color = Color.White, fontWeight = FontWeight.Bold) },
                 selected = selectedItem == 2,
                 onClick = {
-                    val intent = Intent(Lamp, PresencaSensor::class.java)
-                    Lamp.startActivity(intent)
+                    navController.navigate("PresencaSensor")
+//                    val intent = Intent(Lamp, PresencaSensor::class.java)
+//                    Lamp.startActivity(intent)
                     selectedItem = 2
                     coroutineScope.launch {
                     }

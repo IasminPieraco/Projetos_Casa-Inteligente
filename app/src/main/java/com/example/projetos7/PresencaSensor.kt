@@ -1,11 +1,6 @@
 
 package com.example.projetos7
 
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,11 +20,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.projetos7.ui.theme.Projetos7Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,12 +44,12 @@ import kotlinx.coroutines.withContext
 fun ComponentPresenca(navController: NavHostController, viewModel: ComponenteViewModel) {
     Scaffold (
         bottomBar = {
-            BottomBar(2)
+            BottomBar(2, navController)
         }
     ){
         ContentPresenca(modifier = Modifier.fillMaxSize()){
 //        ThermostatScreen()
-            PresencaScreen("Presença",it)
+            PresencaScreen("Presença",it, viewModel)
         }
     }
 
@@ -92,7 +85,7 @@ fun ContentPresenca(
 }
 
 @Composable
-fun PresencaScreen(presenca: String, paddingValues: PaddingValues) {
+fun PresencaScreen(presenca: String, paddingValues: PaddingValues, viewModel: ComponenteViewModel) {
     var selectedItem by remember { mutableStateOf(false) }
 
     val ok = Api()
@@ -193,7 +186,7 @@ fun PresencaScreen(presenca: String, paddingValues: PaddingValues) {
             }
         }
 
-        SensorMode(selectedItem, componente)
+        SensorMode(selectedItem, viewModel)
 
     }
     Row(
@@ -207,7 +200,7 @@ fun PresencaScreen(presenca: String, paddingValues: PaddingValues) {
 }
 
 @Composable
-fun BottomBar(item: Int = 0){
+fun BottomBar(item: Int = 0, navController: NavHostController){
     var selectedItem by remember { mutableStateOf(item) }
     val Presen = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -249,8 +242,9 @@ fun BottomBar(item: Int = 0){
                 label = { Text("Lâmpada", color = Color.White, fontWeight = FontWeight.Bold) },
                 selected = selectedItem == 0,
                 onClick = {
-                    val intent = Intent(Presen, MainActivity3::class.java)
-                    Presen.startActivity(intent)
+                    navController.navigate("tela3")
+//                    val intent = Intent(Presen, MainActivity3::class.java)
+//                    Presen.startActivity(intent)
                     coroutineScope.launch {
                     }
                 }
@@ -269,8 +263,9 @@ fun BottomBar(item: Int = 0){
                 label = { Text("Temperatura", color = Color.White, fontWeight = FontWeight.Bold) },
                 selected = selectedItem == 1,
                 onClick = {
-                    val intent = Intent(Presen, Temperatura::class.java)
-                    Presen.startActivity(intent)
+                    navController.navigate("Temperatura")
+//                    val intent = Intent(Presen, Temperatura::class.java)
+//                    Presen.startActivity(intent)
                     coroutineScope.launch {
                     }
                 }
@@ -289,8 +284,9 @@ fun BottomBar(item: Int = 0){
                 label = { Text("Presença", color = Color.White, fontWeight = FontWeight.Bold) },
                 selected = selectedItem == 2,
                 onClick = {
-                    val intent = Intent(Presen, PresencaSensor::class.java)
-                    Presen.startActivity(intent)
+                    navController.navigate("PresencaSensor")
+//                    val intent = Intent(Presen, PresencaSensor::class.java)
+//                    Presen.startActivity(intent)
                     coroutineScope.launch {
                     }
                 }
@@ -389,15 +385,17 @@ fun PresencaDisplay(temperature: Int) {
 
 
 @Composable
-fun SensorMode(selectedItem: Boolean, componente: MutableState<Componente>) {
+fun SensorMode(
+    selectedItem: Boolean,
+    viewModel: ComponenteViewModel
+) {
     var lamp by remember { mutableStateOf(false) }
     var auto by remember { mutableStateOf(false) }
+    val componente by viewModel.componente.collectAsState()
 
-    val coroutineScope = rememberCoroutineScope()
-    val ok = Api()
 
     var isLedOn by remember {
-        mutableStateOf(if (!selectedItem) componente.value.led_sala else componente.value.led_cozinha)
+        mutableStateOf(if (!selectedItem) componente.led_sala else componente.led_cozinha)
     }
     Column (
         Modifier.padding(vertical = 16.dp)
@@ -419,17 +417,13 @@ fun SensorMode(selectedItem: Boolean, componente: MutableState<Componente>) {
                 onCheckedChange = {
                     isLedOn = it
 
-                    if (!selectedItem) {
-                        componente.value = componente.value.copy(led_sala = it)
+                    val novoComponente = if (!selectedItem) {
+                        componente.copy(led_sala = it)
                     } else {
-                        componente.value = componente.value.copy(led_cozinha = it)
+                        componente.copy(led_cozinha = it)
                     }
 
-                    coroutineScope.launch {
-                        withContext(Dispatchers.IO) {
-                            ok.setComponente(componente.value)
-                        }
-                    }
+                    viewModel.setComponente(novoComponente)
                 },
                 colors = SwitchDefaults.colors(
                     checkedBorderColor = Color.White,
@@ -450,17 +444,16 @@ fun SensorMode(selectedItem: Boolean, componente: MutableState<Componente>) {
                 color = Color.White
             )
             Switch(
-                checked = if (!selectedItem) componente.value.auto_Sala else componente.value.auto_Garagem,
+                checked = if (!selectedItem) componente.auto_Sala else componente.auto_Garagem,
                 onCheckedChange = {
-                    if (!selectedItem) {
-                        componente.value = componente.value.copy(auto_Sala = it)
+                    val novoComponente = if (!selectedItem) {
+                        componente.copy(auto_Sala = it)
                     } else {
-                        componente.value = componente.value.copy(auto_Garagem = it)
+                        componente.copy(auto_Garagem = it)
                     }
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        ok.setComponente(componente.value)
-                    }
+                    viewModel.setComponente(novoComponente)
+
                 },
                 colors = SwitchDefaults.colors(
                     checkedBorderColor = Color.White,

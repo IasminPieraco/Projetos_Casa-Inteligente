@@ -1,9 +1,15 @@
 package com.example.projetos7
 
+import android.util.Log
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.Serializable
 import java.util.Date
 import kotlin.reflect.KMutableProperty1
@@ -105,17 +111,60 @@ data class Componente(
 }
 
 
-class ComponenteViewModel: ViewModel(){
+class ComponenteViewModel : ViewModel() {
 
     private val _componentes = MutableStateFlow(Componente())
     val componente: StateFlow<Componente> = _componentes
 
-    val api = Api()
+    private val api = Api()
 
-    fun sendData(){
-        api.setComponente(_componentes.value)
+    private suspend fun sendDataBlocking() {
+        withContext(Dispatchers.IO) {
+            try {
+                api.setComponente(_componentes.value)
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Erro ao enviar componente", e)
+            }
+        }
+    }
+
+    private suspend fun fetchDataBlocking() {
+        withContext(Dispatchers.IO) {
+            try {
+                val result = api.getComponente()
+                result?.let {
+                    _componentes.value = it
+                }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Erro ao buscar componente", e)
+            }
+        }
     }
 
 
+    fun setComponente(componente: Componente) {
+        viewModelScope.launch {
+            _componentes.value = componente
+            Log.i("teste", componente.toString()
+            )
 
+            withContext(Dispatchers.IO){
+                api.setComponente(componente)
+
+            }
+            withContext(Dispatchers.IO){
+                val result = api.getComponente()
+                result?.let {
+                    _componentes.value = it
+                }
+            }
+
+
+
+
+
+//            sendDataBlocking()
+//            fetchDataBlocking()
+        }
+    }
 }

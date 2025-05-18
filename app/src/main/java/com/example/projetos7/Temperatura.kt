@@ -1,10 +1,6 @@
 package com.example.projetos7
 
 import android.annotation.SuppressLint
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,11 +20,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.projetos7.ui.theme.Projetos7Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -52,11 +46,11 @@ fun ComponentTemperature(navController: NavHostController, viewModel: Componente
 
     Scaffold(
         bottomBar = {
-            BottomBar(1)
+            BottomBar(1, navController)
         }
     ) {
         ContentTemperatura(modifier = Modifier.fillMaxSize()) {
-            ThermostatScreen(25, it)
+            ThermostatScreen(25, it, viewModel)
         }
     }
 }
@@ -91,7 +85,7 @@ fun ContentTemperatura(
 
 @SuppressLint("DefaultLocale")
 @Composable
-fun ThermostatScreen(temperature: Int, paddingValues: PaddingValues) {
+fun ThermostatScreen(temperature: Int, paddingValues: PaddingValues, viewModel: ComponenteViewModel) {
     var selectedItem by remember { mutableStateOf(false) }
 
     val ok = Api()
@@ -183,7 +177,7 @@ fun ThermostatScreen(temperature: Int, paddingValues: PaddingValues) {
                 selectedItem = isSelected
             })
         }
-        SleepMode(selectedItem, componente)
+        SleepMode(selectedItem, viewModel)
 
     }
     Row(
@@ -285,13 +279,12 @@ fun SelectInput(
 }
 
 @Composable
-fun SleepMode(selectedItem: Boolean, componente: MutableState<Componente>) {
-    val coroutineScope = rememberCoroutineScope()
-    val ok = Api()
+fun SleepMode(selectedItem: Boolean, viewModel: ComponenteViewModel) {
 
-    // Estado do Switch que reflete a janela aberta/fechada
+    val componente by viewModel.componente.collectAsState()
+
     var isJanelaOpen by remember {
-        mutableStateOf(if (!selectedItem) componente.value.quarto_open else componente.value.banheiro_open)
+        mutableStateOf(if (!selectedItem) componente.quarto_open else componente.banheiro_open)
     }
 
     Column(
@@ -314,20 +307,16 @@ fun SleepMode(selectedItem: Boolean, componente: MutableState<Componente>) {
                 onCheckedChange = { isChecked ->
                     isJanelaOpen = isChecked  // Atualiza o switch
 
-                    // Atualiza o estado do componente
-                    if (!selectedItem) {
-                        componente.value = componente.value.copy(quarto_open = isChecked)
+                    val novoComponente = if (!selectedItem) {
+                        componente.copy(quarto_open = isChecked)
                     } else {
-                        componente.value = componente.value.copy(banheiro_open = isChecked)
+                        componente.copy(banheiro_open = isChecked)
                     }
 
-                    coroutineScope.launch {
-                        withContext(Dispatchers.IO) {
-                            ok.setComponente(componente.value)
-                        }
-                    }
+                    viewModel.setComponente(novoComponente)
+
                 },
-                enabled = !((selectedItem && componente.value.auto_Banheiro) || (!selectedItem && componente.value.auto_Quarto)),
+                enabled = !((selectedItem && componente.auto_Banheiro) || (!selectedItem && componente.auto_Quarto)),
                 colors = SwitchDefaults.colors(
                     checkedBorderColor = Color.White,
                     checkedThumbColor = Color.White,
@@ -347,17 +336,15 @@ fun SleepMode(selectedItem: Boolean, componente: MutableState<Componente>) {
                 color = Color.White
             )
             Switch(
-                checked = if (!selectedItem) componente.value.auto_Quarto else componente.value.auto_Banheiro,
+                checked = if (!selectedItem) componente.auto_Quarto else componente.auto_Banheiro,
                 onCheckedChange = { isChecked ->
-                    if (!selectedItem) {
-                        componente.value = componente.value.copy(auto_Quarto = isChecked)
+                    val novoComponente = if (!selectedItem) {
+                        componente.copy(auto_Quarto = isChecked)
                     } else {
-                        componente.value = componente.value.copy(auto_Banheiro = isChecked)
+                        componente.copy(auto_Banheiro = isChecked)
                     }
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        ok.setComponente(componente.value)
-                    }
+                    viewModel.setComponente(novoComponente)
                 },
                 colors = SwitchDefaults.colors(
                     checkedBorderColor = Color.White,

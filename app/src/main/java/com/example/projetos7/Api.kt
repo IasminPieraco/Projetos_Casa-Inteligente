@@ -14,7 +14,7 @@ import java.io.IOException
 
 class Api(){
     val client = OkHttpClient()
-    val url = "http://192.168.141.113:3000"
+    val url = "http://192.168.141.232:3000"
     companion object {
         val MEDIA_TYPE_MARKDOWN = "text/x-markdown; charset=utf-8".toMediaType()
         val MEDIA_TYPE_JSON = "application/json; charset=utf-8".toMediaTypeOrNull()
@@ -126,10 +126,11 @@ class Api(){
     }
 
     fun setComponente(componente: Componente):Boolean{
-        componente.led_cozinha = !componente.led_cozinha
-        componente.led_banheiro = !componente.led_banheiro
-        componente.led_sala = !componente.led_sala
-        componente.led_quarto = !componente.led_quarto
+//        val novoComponente = componente
+//        novoComponente.led_cozinha = !novoComponente.led_cozinha
+//        novoComponente.led_banheiro = !novoComponente.led_banheiro
+//        novoComponente.led_sala = !novoComponente.led_sala
+//        novoComponente.led_quarto = !novoComponente.led_quarto
         // Converte o objeto Componente em JSON
         val gson = Gson()
         val jsonComponente = gson.toJson(componente)
@@ -155,7 +156,7 @@ class Api(){
             }
         } catch (e: Exception) {
             println("Erro ao enviar POST: ${e.message}")
-            Log.i("Teste", "${e.message}")
+            Log.i("Teste", " Esplique : ${e}, ${e.message}")
             false  // Em caso de falha, retorna false
         }
     }

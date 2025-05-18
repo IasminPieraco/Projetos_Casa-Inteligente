@@ -1,6 +1,5 @@
 package com.example.projetos7
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -112,7 +111,7 @@ class MainActivity : ComponentActivity() {
                         Scaffold(
                             modifier = Modifier.fillMaxSize(),
                             bottomBar = {
-                                BottonBarLight(0)
+                                BottonBarLight(0, navController)
                             }
                         ) {
                             Centro(it, navController, viewModel)
@@ -167,10 +166,6 @@ fun CentroPrincipal(
     val contexto = LocalContext.current
     checkAudioPermission(LocalContext.current)
     val componente by viewModel.componente.collectAsState()
-//    var speechHelper = SpeechHelper(contexto as Activity) { spokenText ->
-//        Toast.makeText(contexto, "Você disse: $spokenText", Toast.LENGTH_LONG).show()
-//        // Aqui você pode executar ações com base no texto reconhecido
-//    }
 
     val ligarLuzQuarto = arrayListOf("ligar luz do quarto","ligar a luz do quarto","acender luz do quarto","acender a luz do quarto","liga luz do quarto","liga a luz do quarto","acenda luz do quarto","acenda a luz do quarto","liga luz quarto","luz quarto","acende luz quarto")
     val desligarLuzQuarto = arrayListOf("desligar luz do quarto","desligar a luz do quarto","apagar luz do quarto","apagar a luz do quarto","desliga luz do quarto","desliga a luz do quarto","apague luz do quarto","apague a luz do quarto","desliga luz quarto","luz quarto off","apaga luz quarto")
@@ -197,90 +192,87 @@ fun CentroPrincipal(
 
     val coroutineScope = rememberCoroutineScope()
     var speechHelper = SpeechHelper(contexto as Activity) { spokenText ->
-        val api = Api()
 
-        Log.i("Teste", "passei aqui")
+        var novoComponente = componente
 
-        if(verificaFala(spokenText, ligarLuzes)){
-            // chamar função de ligar luz no esp.
-            componente.led_sala = true
-            componente.led_quarto = true
-            componente.led_cozinha = true
-            componente.led_banheiro = true
+        if (verificaFala(spokenText, ligarLuzes)) {
+            novoComponente = novoComponente.copy(
+                led_sala = true,
+                led_quarto = true,
+                led_cozinha = true,
+                led_banheiro = true
+            )
         }
-        if(verificaFala(spokenText, ligarLuzSala)){
-            componente.led_sala = true
+        if (verificaFala(spokenText, ligarLuzSala)) {
+            novoComponente = novoComponente.copy(led_sala = true)
         }
-        if(verificaFala(spokenText, ligarLuzQuarto)){
-            componente.led_quarto = true
+        if (verificaFala(spokenText, ligarLuzQuarto)) {
+            novoComponente = novoComponente.copy(led_quarto = true)
         }
-        if(verificaFala(spokenText, ligarLuzCozinha)){
-            componente.led_cozinha = true
+        if (verificaFala(spokenText, ligarLuzCozinha)) {
+            novoComponente = novoComponente.copy(led_cozinha = true)
         }
-        if(verificaFala(spokenText, ligarLuzBanheiro)){
-            componente.led_banheiro = true
+        if (verificaFala(spokenText, ligarLuzBanheiro)) {
+            novoComponente = novoComponente.copy(led_banheiro = true)
         }
-        if(verificaFala(spokenText, desligarLuzes)){
-            // chamar função de ligar luz no esp.
-            componente.led_sala = false
-            componente.led_quarto = false
-            componente.led_cozinha = false
-            componente.led_banheiro = false
+        if (verificaFala(spokenText, desligarLuzes)) {
+            novoComponente = novoComponente.copy(
+                led_sala = false,
+                led_quarto = false,
+                led_cozinha = false,
+                led_banheiro = false
+            )
         }
-        if(verificaFala(spokenText, desligarLuzSala)){
-            componente.led_sala = false
+        if (verificaFala(spokenText, desligarLuzSala)) {
+            novoComponente = novoComponente.copy(led_sala = false)
+        }
+        if (verificaFala(spokenText, desligarLuzQuarto)) {
+            novoComponente = novoComponente.copy(led_quarto = false)
+        }
+        if (verificaFala(spokenText, desligarLuzCozinha)) {
+            novoComponente = novoComponente.copy(led_cozinha = false)
+        }
+        if (verificaFala(spokenText, desligarLuzBanheiro)) {
+            novoComponente = novoComponente.copy(led_banheiro = false)
+        }
+        if (verificaFala(spokenText, abrirJanelas)) {
+            novoComponente = novoComponente.copy(
+                banheiro_open = true,
+                quarto_open = true
+            )
+        }
+        if (verificaFala(spokenText, abrirJanelaBanheiro)) {
+            novoComponente = novoComponente.copy(banheiro_open = true)
+        }
+        if (verificaFala(spokenText, abrirJanelaQuarto)) {
+            novoComponente = novoComponente.copy(quarto_open = true)
+        }
+        if (verificaFala(spokenText, fecharJanelas)) {
+            novoComponente = novoComponente.copy(
+                banheiro_open = false,
+                quarto_open = false
+            )
+        }
+        if (verificaFala(spokenText, fecharJanelaBanheiro)) {
+            novoComponente = novoComponente.copy(banheiro_open = false)
+        }
+        if (verificaFala(spokenText, fecharJanelaQuarto)) {
+            novoComponente = novoComponente.copy(quarto_open = false)
+        }
+        if (verificaFala(spokenText, abrirPortao)) {
+            novoComponente = novoComponente.copy(garagem_open = true)
+        }
+        if (verificaFala(spokenText, fecharPortao)) {
+            novoComponente = novoComponente.copy(garagem_open = false)
+        }
+        if (verificaFala(spokenText, ligarIrrigacaoJardim)) {
+            novoComponente = novoComponente.copy(irrigacao_jardim = true)
+        }
+//        if (verificaFala(spokenText, desligarIrrigacaoJardim)) {
+//            novoComponente = novoComponente.copy(irrigacao_jardim = false)
+//        }
 
-        }
-        if(verificaFala(spokenText, desligarLuzQuarto)){
-            componente.led_quarto = false
-
-        }
-        if(verificaFala(spokenText, desligarLuzCozinha)){
-            componente.led_cozinha = false
-        }
-        if(verificaFala(spokenText, desligarLuzBanheiro)){
-            componente.led_banheiro = false
-        }
-        if(verificaFala(spokenText, abrirJanelas)){
-            componente.banheiro_open = true
-            componente.quarto_open = true
-
-        }
-        if(verificaFala(spokenText, abrirJanelaBanheiro)){
-            componente.banheiro_open = true
-        }
-        if(verificaFala(spokenText, abrirJanelaQuarto)){
-            componente.quarto_open = true
-        }
-        if(verificaFala(spokenText, fecharJanelas)){
-            componente.banheiro_open = false
-            componente.quarto_open = false
-        }
-        if(verificaFala(spokenText, fecharJanelaQuarto)){
-            componente.banheiro_open = false
-        }
-        if(verificaFala(spokenText, fecharJanelaBanheiro)){
-            componente.quarto_open = false
-        }
-        if(verificaFala(spokenText, abrirPortao)){
-            componente.garagem_open = true
-        }
-        if(verificaFala(spokenText, fecharPortao)){
-            componente.garagem_open = false
-        }
-        if(verificaFala(spokenText, ligarIrrigacaoJardim)){
-            componente.irrigacao_jardim = true
-        }
-        if(verificaFala(spokenText, desligarIrrigacaoJardim)){
-            componente.irrigacao_jardim = false
-        }
-
-        coroutineScope.launch {
-            withContext(Dispatchers.IO) {
-
-                api.setComponente(componente)
-            }
-        }
+        viewModel.setComponente(novoComponente)
 
         Toast.makeText(contexto, "Você falou: $spokenText", Toast.LENGTH_LONG).show()
         // Aqui você pode executar ações com base no texto reconhecido

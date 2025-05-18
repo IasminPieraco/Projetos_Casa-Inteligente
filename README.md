@@ -1,3 +1,4 @@
+
 # Casa Inteligente
 
  Cassa Inteligente é um aplicativo desenvolvido em Kotlin utilizando Jetpack Compose, projetado para revolucionar o controle da sua casa. Este sistema integrado permite aos usuários gerenciar remotamente diversos aspectos residenciais, proporcionando mais conforto, segurança e eficiência.
