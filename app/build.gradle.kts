@@ -58,6 +58,8 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.3.0-beta02")
     implementation(libs.postgresql)
     implementation(libs.gson)
+    implementation ("androidx.navigation:navigation-compose:2.7.7")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
 
 
     implementation(libs.androidx.core.ktx)

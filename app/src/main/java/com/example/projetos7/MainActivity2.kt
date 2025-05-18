@@ -43,27 +43,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.example.projetos7.alarm.AlarmScheduler
 import com.example.projetos7.ui.theme.Projetos7Theme
 import java.util.Calendar
 
-class MainActivity2 : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            Projetos7Theme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    CronometroScreen()
-                }
-
-            }
-        }
-    }
-}
+//class MainActivity2 : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        enableEdgeToEdge()
+//        setContent {
+//            Projetos7Theme {
+//                // A surface container using the 'background' color from the theme
+//                Surface(
+//                    modifier = Modifier.fillMaxSize(),
+//                ) {
+//                    CronometroScreen(navController, viewModel)
+//                }
+//
+//            }
+//        }
+//    }
+//}
 
 @Composable
 fun gradientBackgroundBrush1(
@@ -124,7 +125,7 @@ fun Content1(
 @SuppressLint("RememberReturnType", "DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CronometroScreen() {
+fun CronometroScreen(navController: NavHostController, viewModel: ComponenteViewModel) {
     val mContext = LocalContext.current
     val scheduler = AlarmScheduler(mContext)
 
@@ -375,10 +376,10 @@ fun TimerItem(
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview2() {
-    Projetos7Theme {
-        CronometroScreen()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview2() {
+//    Projetos7Theme {
+//        CronometroScreen(navController, viewModel)
+//    }
+//}

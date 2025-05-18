@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.projetos7.ui.theme.Projetos7Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,20 +35,20 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class Temperatura : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            Projetos7Theme {
-                ComponentTemperature()
-            }
-        }
-    }
-}
+//class Temperatura : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        enableEdgeToEdge()
+//        setContent {
+//            Projetos7Theme {
+//                ComponentTemperature(navController, viewModel)
+//            }
+//        }
+//    }
+//}
 
 @Composable
-fun ComponentTemperature() {
+fun ComponentTemperature(navController: NavHostController, viewModel: ComponenteViewModel) {
 
     Scaffold(
         bottomBar = {
@@ -368,14 +369,14 @@ fun SleepMode(selectedItem: Boolean, componente: MutableState<Componente>) {
 }
 
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewThermostatScreen() {
-    Projetos7Theme {
-        ComponentTemperature()
-    }
-}
-
-
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewThermostatScreen() {
+//    Projetos7Theme {
+//        ComponentTemperature(navController, viewModel)
+//    }
+//}
+//
+//
 
 

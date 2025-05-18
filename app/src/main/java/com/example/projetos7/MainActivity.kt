@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.projetos7.ui.theme.Projetos7Theme
@@ -33,9 +32,39 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.getValue
+
+
 
 private const val REQUEST_RECORD_AUDIO_PERMISSION = 200
 
@@ -57,17 +86,54 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Projetos7Theme {
-                Scaffold {
-                    CentroPrincipal(it)
+            val navController = rememberNavController()
+            val viewModel: ComponenteViewModel = viewModel()
+
+            NavHost(navController = navController, startDestination = "home") {
+                composable("home") {
+                    Projetos7Theme {
+                        Scaffold {
+                            CentroPrincipal(it, navController, viewModel)
+                        }
+                    }
+                }
+                composable("tela2"){
+                    Projetos7Theme {
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            CronometroScreen(navController, viewModel)
+                        }
+
+                    }
+                }
+                composable("tela3") {
+                    Projetos7Theme {
+                        Scaffold(
+                            modifier = Modifier.fillMaxSize(),
+                            bottomBar = {
+                                BottonBarLight(0)
+                            }
+                        ) {
+                            Centro(it, navController, viewModel)
+                        }
+                    }
+                }
+                composable("PresencaSensor"){
+                    Projetos7Theme {
+                        ComponentPresenca(navController, viewModel)
+                    }
+                }
+                composable("Temperatura"){
+                    Projetos7Theme {
+                        ComponentTemperature(navController, viewModel)
+                    }
                 }
             }
+
         }
         checkAudioPermission(this)
-        speechHelper = SpeechHelper(this) { spokenText ->
-            Toast.makeText(this, "Você disse: $spokenText", Toast.LENGTH_LONG).show()
-            // Aqui você pode executar ações com base no texto reconhecido
-        }
+
 
     }
     override fun onDestroy() {
@@ -75,12 +141,148 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
     }
 }
+
+fun verificaFala(fala: String, listaDeStrings: ArrayList<String>):Boolean{
+
+    var falouCorreto: Boolean = false
+    listaDeStrings.forEach{
+        if(fala.contains(it, ignoreCase = true)){
+            falouCorreto = true
+        }
+    }
+
+    if(falouCorreto){
+        return true
+    }else{
+        return false
+    }
+}
+
 @Composable
-fun CentroPrincipal(paddingValues: PaddingValues) {
+fun CentroPrincipal(
+    paddingValues: PaddingValues,
+    navController: NavHostController,
+    viewModel: ComponenteViewModel
+) {
     val contexto = LocalContext.current
     checkAudioPermission(LocalContext.current)
+    val componente by viewModel.componente.collectAsState()
+//    var speechHelper = SpeechHelper(contexto as Activity) { spokenText ->
+//        Toast.makeText(contexto, "Você disse: $spokenText", Toast.LENGTH_LONG).show()
+//        // Aqui você pode executar ações com base no texto reconhecido
+//    }
+
+    val ligarLuzQuarto = arrayListOf("ligar luz do quarto","ligar a luz do quarto","acender luz do quarto","acender a luz do quarto","liga luz do quarto","liga a luz do quarto","acenda luz do quarto","acenda a luz do quarto","liga luz quarto","luz quarto","acende luz quarto")
+    val desligarLuzQuarto = arrayListOf("desligar luz do quarto","desligar a luz do quarto","apagar luz do quarto","apagar a luz do quarto","desliga luz do quarto","desliga a luz do quarto","apague luz do quarto","apague a luz do quarto","desliga luz quarto","luz quarto off","apaga luz quarto")
+    val ligarLuzCozinha = arrayListOf("ligar luz da cozinha","ligar a luz da cozinha","acender luz da cozinha","acender a luz da cozinha","liga luz da cozinha","liga a luz da cozinha","acenda luz da cozinha","acenda a luz da cozinha","liga luz cozinha","luz cozinha","acende luz cozinha")
+    val desligarLuzCozinha = arrayListOf("desligar luz da cozinha","desligar a luz da cozinha","apagar luz da cozinha","apagar a luz da cozinha","desliga luz da cozinha","desliga a luz da cozinha","apague luz da cozinha","apague a luz da cozinha","desliga luz cozinha","luz cozinha off","apaga luz cozinha")
+    val ligarLuzBanheiro = arrayListOf("ligar luz do banheiro","ligar a luz do banheiro","acender luz do banheiro","acender a luz do banheiro","liga luz do banheiro","liga a luz do banheiro","acenda luz do banheiro","acenda a luz do banheiro","liga luz banheiro","luz banheiro","acende luz banheiro")
+    val desligarLuzBanheiro = arrayListOf("desligar luz do banheiro","desligar a luz do banheiro","apagar luz do banheiro","apagar a luz do banheiro","desliga luz do banheiro","desliga a luz do banheiro","apague luz do banheiro","apague a luz do banheiro","desliga luz banheiro","luz banheiro off","apaga luz banheiro")
+    val ligarLuzSala = arrayListOf("ligar luz da sala","ligar a luz da sala","acender luz da sala","acender a luz da sala","liga luz da sala","liga a luz da sala","acenda luz da sala","acenda a luz da sala","liga luz sala","luz sala","acende luz sala")
+    val desligarLuzSala = arrayListOf("desligar luz da sala","desligar a luz da sala","apagar luz da sala","apagar a luz da sala","desliga luz da sala","desliga a luz da sala","apague luz da sala","apague a luz da sala","desliga luz sala","luz sala off","apaga luz sala")
+    val ligarLuzes = arrayListOf("ligar luzes","ligar as luzes","acender luzes","acender as luzes","liga luzes","acende luzes","liga luz","acende a luz")
+    val desligarLuzes = arrayListOf("desligar luzes","desligar as luzes","apagar luzes","apagar as luzes","desliga luzes","apaga luzes","luz off","todas as luzes off")
+    val abrirPortao = arrayListOf("abrir portão","abre o portão","abra o portão","abre portão","abrir o portão","portão abrir","portão abre","abre o portao")
+    val fecharPortao = arrayListOf("fechar portão","fecha o portão","feche o portão","fecha portão","fechar o portão","portão fechar","portão fecha","fecha o portao")
+    val abrirJanelas = arrayListOf("abrir janelas","abrir as janelas","abre as janelas","abra as janelas","abre janelas","janelas abrir","abrir janela","abre janela")
+    val fecharJanelas = arrayListOf("fechar janelas","fechar as janelas","fecha as janelas","feche as janelas","fecha janelas","janelas fechar","fechar janela","fecha janela")
+    val abrirJanelaQuarto = arrayListOf("abrir janela do quarto","abrir a janela do quarto","abre a janela do quarto","abre janela do quarto","abrir janela quarto","abre janela quarto","janela do quarto")
+    val fecharJanelaQuarto = arrayListOf("fechar janela do quarto","fechar a janela do quarto","fecha a janela do quarto","fecha janela do quarto","fechar janela quarto","fecha janela quarto","janela quarto off")
+    val abrirJanelaBanheiro = arrayListOf("abrir janela do banheiro","abrir a janela do banheiro","abre a janela do banheiro","abre janela do banheiro","abrir janela banheiro","abre janela banheiro","janela do banheiro")
+    val fecharJanelaBanheiro = arrayListOf("fechar janela do banheiro","fechar a janela do banheiro","fecha a janela do banheiro","fecha janela do banheiro","fechar janela banheiro","fecha janela banheiro","janela banheiro off")
+    val ligarIrrigacaoJardim = arrayListOf("ligar irrigação","ligar irrigação do jardim","ligar regador","ligar o regador do jardim","regar jardim","ligue a irrigação","irrigar jardim","rega jardim","liga irrigador")
+    val desligarIrrigacaoJardim = arrayListOf("desligar irrigação","desligar irrigação do jardim","desligar regador","desliga o regador do jardim","parar irrigação","parar regar jardim","desliga irrigação","desliga jardim","irrigação off")
+
+
+
+    val coroutineScope = rememberCoroutineScope()
     var speechHelper = SpeechHelper(contexto as Activity) { spokenText ->
-        Toast.makeText(contexto, "Você disse: $spokenText", Toast.LENGTH_LONG).show()
+        val api = Api()
+
+        Log.i("Teste", "passei aqui")
+
+        if(verificaFala(spokenText, ligarLuzes)){
+            // chamar função de ligar luz no esp.
+            componente.led_sala = true
+            componente.led_quarto = true
+            componente.led_cozinha = true
+            componente.led_banheiro = true
+        }
+        if(verificaFala(spokenText, ligarLuzSala)){
+            componente.led_sala = true
+        }
+        if(verificaFala(spokenText, ligarLuzQuarto)){
+            componente.led_quarto = true
+        }
+        if(verificaFala(spokenText, ligarLuzCozinha)){
+            componente.led_cozinha = true
+        }
+        if(verificaFala(spokenText, ligarLuzBanheiro)){
+            componente.led_banheiro = true
+        }
+        if(verificaFala(spokenText, desligarLuzes)){
+            // chamar função de ligar luz no esp.
+            componente.led_sala = false
+            componente.led_quarto = false
+            componente.led_cozinha = false
+            componente.led_banheiro = false
+        }
+        if(verificaFala(spokenText, desligarLuzSala)){
+            componente.led_sala = false
+
+        }
+        if(verificaFala(spokenText, desligarLuzQuarto)){
+            componente.led_quarto = false
+
+        }
+        if(verificaFala(spokenText, desligarLuzCozinha)){
+            componente.led_cozinha = false
+        }
+        if(verificaFala(spokenText, desligarLuzBanheiro)){
+            componente.led_banheiro = false
+        }
+        if(verificaFala(spokenText, abrirJanelas)){
+            componente.banheiro_open = true
+            componente.quarto_open = true
+
+        }
+        if(verificaFala(spokenText, abrirJanelaBanheiro)){
+            componente.banheiro_open = true
+        }
+        if(verificaFala(spokenText, abrirJanelaQuarto)){
+            componente.quarto_open = true
+        }
+        if(verificaFala(spokenText, fecharJanelas)){
+            componente.banheiro_open = false
+            componente.quarto_open = false
+        }
+        if(verificaFala(spokenText, fecharJanelaQuarto)){
+            componente.banheiro_open = false
+        }
+        if(verificaFala(spokenText, fecharJanelaBanheiro)){
+            componente.quarto_open = false
+        }
+        if(verificaFala(spokenText, abrirPortao)){
+            componente.garagem_open = true
+        }
+        if(verificaFala(spokenText, fecharPortao)){
+            componente.garagem_open = false
+        }
+        if(verificaFala(spokenText, ligarIrrigacaoJardim)){
+            componente.irrigacao_jardim = true
+        }
+        if(verificaFala(spokenText, desligarIrrigacaoJardim)){
+            componente.irrigacao_jardim = false
+        }
+
+        coroutineScope.launch {
+            withContext(Dispatchers.IO) {
+
+                api.setComponente(componente)
+            }
+        }
+
+        Toast.makeText(contexto, "Você falou: $spokenText", Toast.LENGTH_LONG).show()
         // Aqui você pode executar ações com base no texto reconhecido
     }
     val gradientColorList = listOf(
@@ -122,20 +324,29 @@ fun CentroPrincipal(paddingValues: PaddingValues) {
             CustomButton(
                 text = "Lâmpada",
                 iconResource = R.drawable.lampprinci,
-                onClick = {  val intent = Intent(contexto, MainActivity3::class.java)
-                    contexto.startActivity(intent) }
+                onClick = {
+                    navController.navigate("tela3")
+//                    val intent = Intent(contexto, MainActivity3::class.java)
+//                    contexto.startActivity(intent)
+                }
             )
             CustomButton(
                 text = "Temperatura",
                 iconResource = R.drawable.temp,
-                onClick = { val intent = Intent(contexto, Temperatura::class.java)
-                    contexto.startActivity(intent) }
+                onClick = {
+                    navController.navigate("Temperatura")
+//                    val intent = Intent(contexto, Temperatura::class.java)
+//                    contexto.startActivity(intent)
+                }
             )
             CustomButton(
                 text = "Presença",
                 iconResource = R.drawable.sensorprox,
-                onClick = { val intent = Intent(contexto, PresencaSensor::class.java)
-                    contexto.startActivity(intent) }
+                onClick = {
+                    navController.navigate("PresencaSensor")
+//                    val intent = Intent(contexto, PresencaSensor::class.java)
+//                    contexto.startActivity(intent)
+                }
             )
             CustomButton(
                 text = "Falar",
@@ -319,15 +530,15 @@ fun CustomButton(
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreviewPrincipal() {
-    Projetos7Theme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = MaterialTheme.colorScheme.background
-        ) {
-            CentroPrincipal(it)
-        }
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreviewPrincipal() {
+//    Projetos7Theme {
+//        Scaffold(
+//            modifier = Modifier.fillMaxSize(),
+//            containerColor = MaterialTheme.colorScheme.background
+//        ) {
+//            CentroPrincipal(it, navController, viewModel)
+//        }
+//    }
+//}

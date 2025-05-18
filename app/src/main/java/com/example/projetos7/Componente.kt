@@ -1,6 +1,12 @@
 package com.example.projetos7
 
+import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import java.io.Serializable
 import java.util.Date
+import kotlin.reflect.KMutableProperty1
 
 data class Componente(
     var id: String = "", // Valor padrão para id
@@ -22,8 +28,9 @@ data class Componente(
     var auto_Banheiro: Boolean = false,
     var auto_Sala: Boolean = false,
     var auto_Garagem: Boolean = false,
+    var irrigacao_jardim: Boolean = false,
     var created_at: Date = Date() // Valor padrão para created_at (data atual)
-) {
+): Serializable {
     constructor() : this(
         "",
         0.0,
@@ -44,6 +51,71 @@ data class Componente(
         false,
         false,
         false,
+        false,
         Date()
     )
+    fun copyWith(
+        id: String? = null,
+        temp_sensorQuarto: Double? = null,
+        temp_sensorBanheiro: Double? = null,
+        humidity_sensorQuarto: Double? = null,
+        humidity_sensorBanheiro: Double? = null,
+        sensor_Cozinha: Boolean? = null,
+        sensor_Sala: Boolean? = null,
+        sensor_Garagem: Boolean? = null,
+        garagem_open: Boolean? = null,
+        quarto_open: Boolean? = null,
+        banheiro_open: Boolean? = null,
+        led_sala: Boolean? = null,
+        led_cozinha: Boolean? = null,
+        led_quarto: Boolean? = null,
+        led_banheiro: Boolean? = null,
+        auto_Quarto: Boolean? = null,
+        auto_Banheiro: Boolean? = null,
+        auto_Sala: Boolean? = null,
+        auto_Garagem: Boolean? = null,
+        irrigacao_jardim: Boolean? = null,
+        created_at: Date? = null
+    ): Componente {
+        return Componente(
+            id = id ?: this.id,
+            temp_sensorQuarto = temp_sensorQuarto ?: this.temp_sensorQuarto,
+            temp_sensorBanheiro = temp_sensorBanheiro ?: this.temp_sensorBanheiro,
+            humidity_sensorQuarto = humidity_sensorQuarto ?: this.humidity_sensorQuarto,
+            humidity_sensorBanheiro = humidity_sensorBanheiro ?: this.humidity_sensorBanheiro,
+            sensor_Cozinha = sensor_Cozinha ?: this.sensor_Cozinha,
+            sensor_Sala = sensor_Sala ?: this.sensor_Sala,
+            sensor_Garagem = sensor_Garagem ?: this.sensor_Garagem,
+            garagem_open = garagem_open ?: this.garagem_open,
+            quarto_open = quarto_open ?: this.quarto_open,
+            banheiro_open = banheiro_open ?: this.banheiro_open,
+            led_sala = led_sala ?: this.led_sala,
+            led_cozinha = led_cozinha ?: this.led_cozinha,
+            led_quarto = led_quarto ?: this.led_quarto,
+            led_banheiro = led_banheiro ?: this.led_banheiro,
+            auto_Quarto = auto_Quarto ?: this.auto_Quarto,
+            auto_Banheiro = auto_Banheiro ?: this.auto_Banheiro,
+            auto_Sala = auto_Sala ?: this.auto_Sala,
+            auto_Garagem = auto_Garagem ?: this.auto_Garagem,
+            irrigacao_jardim = irrigacao_jardim ?: this.irrigacao_jardim,
+            created_at = created_at ?: this.created_at
+        )
+    }
+
+}
+
+
+class ComponenteViewModel: ViewModel(){
+
+    private val _componentes = MutableStateFlow(Componente())
+    val componente: StateFlow<Componente> = _componentes
+
+    val api = Api()
+
+    fun sendData(){
+        api.setComponente(_componentes.value)
+    }
+
+
+
 }

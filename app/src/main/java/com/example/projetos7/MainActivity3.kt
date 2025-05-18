@@ -33,9 +33,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -54,32 +52,31 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.navigation.NavHostController
 import com.example.projetos7.ui.theme.Projetos7Theme
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MainActivity3 : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            Projetos7Theme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    bottomBar = {
-                        BottonBarLight(0)
-                    }
-                ) {
-                    Centro(it)
-                }
-
-            }
-        }
-    }
-}
+//class MainActivity3 : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        enableEdgeToEdge()
+//        setContent {
+//            Projetos7Theme {
+//                Scaffold(
+//                    modifier = Modifier.fillMaxSize(),
+//                    bottomBar = {
+//                        BottonBarLight(0)
+//                    }
+//                ) {
+//                    Centro(it, navController, viewModel)
+//                }
+//
+//            }
+//        }
+//    }
+//}
 
 
 @Composable
@@ -144,7 +141,11 @@ fun ContentPrincipal(
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun Centro(paddingValues: PaddingValues) {
+fun Centro(
+    paddingValues: PaddingValues,
+    navController: NavHostController,
+    viewModel: ComponenteViewModel
+) {
     var ledQuarto by remember { mutableStateOf(false) }
     var ledCozinha by remember { mutableStateOf(false) }
     var ledSala by remember { mutableStateOf(false) }
@@ -406,8 +407,9 @@ fun BottonBarLight(index: Int){
                 label = { Text("Lâmpada", color = Color.White, fontWeight = FontWeight.Bold) },
                 selected = selectedItem == 0,
                 onClick = {
-                    val intent = Intent(Lamp, MainActivity3::class.java)
-                    Lamp.startActivity(intent)
+
+//                    val intent = Intent(Lamp, MainActivity3::class.java)
+//                    Lamp.startActivity(intent)
                     selectedItem = 0
                     coroutineScope.launch {
                     }
@@ -460,19 +462,19 @@ fun BottonBarLight(index: Int){
 }
 
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Projetos7Theme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            bottomBar = {
-                BottonBarLight(0)
-            }
-        ) {
-            Centro(it)
-        }
-
-    }
-}
+//@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    Projetos7Theme {
+//        Scaffold(
+//            modifier = Modifier.fillMaxSize(),
+//            bottomBar = {
+//                BottonBarLight(0)
+//            }
+//        ) {
+//            Centro(it, navController, viewModel)
+//        }
+//
+//    }
+//}

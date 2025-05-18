@@ -1,6 +1,8 @@
 package com.example.projetos7
 
 
+import android.util.Log
+import androidx.compose.ui.platform.LocalGraphicsContext
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -12,7 +14,7 @@ import java.io.IOException
 
 class Api(){
     val client = OkHttpClient()
-    val url = "http://192.168.43.60:3000"
+    val url = "http://192.168.141.113:3000"
     companion object {
         val MEDIA_TYPE_MARKDOWN = "text/x-markdown; charset=utf-8".toMediaType()
         val MEDIA_TYPE_JSON = "application/json; charset=utf-8".toMediaTypeOrNull()
@@ -124,6 +126,10 @@ class Api(){
     }
 
     fun setComponente(componente: Componente):Boolean{
+        componente.led_cozinha = !componente.led_cozinha
+        componente.led_banheiro = !componente.led_banheiro
+        componente.led_sala = !componente.led_sala
+        componente.led_quarto = !componente.led_quarto
         // Converte o objeto Componente em JSON
         val gson = Gson()
         val jsonComponente = gson.toJson(componente)
@@ -139,15 +145,17 @@ class Api(){
             .url("$url/componentes")
             .post(requestBody)
             .build()
-
+        Log.i("Teste", "chamou a API")
         // Tenta enviar a requisição
         return try {
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) throw IOException("Unexpected code $response")
+                Log.i("Teste", "deu certo")
                 true  // Se a requisição for bem-sucedida, retorna true
             }
         } catch (e: Exception) {
             println("Erro ao enviar POST: ${e.message}")
+            Log.i("Teste", "${e.message}")
             false  // Em caso de falha, retorna false
         }
     }
